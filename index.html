@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metronome App - Tu Progreso Musical</title>
+    <!-- Chosen Palette: Dark Mode Professional (Blue & Gold) -->
+    <!-- Application Structure Plan: Se ha diseñado una Single-Page Application (SPA) con una estructura centrada en un Dashboard. La navegación lateral permite cambiar entre vistas (Dashboard, Calendario, Progreso, Plan de Estudio) sin recargar la página, manteniendo al usuario en un flujo constante. Esta estructura se eligió porque presenta la información más relevante (la práctica del día y la racha) de forma inmediata, motivando la acción. Las demás secciones ofrecen vistas más profundas de los datos históricos y futuros, permitiendo al usuario explorar su progreso y planificar a su conveniencia. El flujo principal es simple: ver la tarea, iniciar el cronómetro, registrar la sesión y ver la actualización instantánea de los datos, lo que crea un ciclo de retroalimentación positivo. -->
+    <!-- Visualization & Content Choices: Se han utilizado los siguientes métodos de visualización para transformar los datos del informe (el plan de estudio) y los datos generados por el usuario (los registros de práctica) en información útil: [Tarjeta "Práctica de Hoy" (HTML/Tailwind) -> Goal: Informar -> Justification: Proporciona la tarea más inmediata y accionable], [Gráficas de Barras y Donas (Chart.js) -> Goal: Comparar y Organizar -> Justification: Permiten visualizar la distribución del tiempo y el progreso semanal/mensual de forma clara y estandarizada], [Calendario Interactivo (HTML Grid + JS) -> Goal: Mostrar Cambio/Consistencia -> Justification: Ofrece una poderosa representación visual de la constancia del usuario, reforzando el hábito], [Acordeón de Plan de Estudio (HTML/Tailwind + JS) -> Goal: Organizar -> Justification: Condensa la gran cantidad de información del PDF en una jerarquía navegable y fácil de consumir, evitando la sobrecarga de información]. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .dark {
+            --bg-primary: #121212;
+            --bg-secondary: #1E1E1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A8A8A8;
+            --accent-primary: #3A86FF;
+            --accent-secondary: #FFBE0B;
+        }
+        .light {
+            --bg-primary: #F7F7F7;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #121212;
+            --text-secondary: #6E6E6E;
+            --accent-primary: #3A86FF;
+            --accent-secondary: #FB5607;
+        }
+        body { background-color: var(--bg-primary); color: var(--text-primary); }
+        .chart-container { position: relative; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; height: 300px; max-height: 40vh; }
+        .sidebar-icon { width: 24px; height: 24px; stroke-width: 2; }
+        .nav-link.active { background-color: var(--accent-primary); color: white; }
+        .nav-link:not(.active) { color: var(--text-secondary); }
+        .metronome-pulse {
+            animation: pulse 0.1s ease-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="flex h-screen bg-[var(--bg-primary)]">
+        <!-- Sidebar -->
+        <nav class="w-20 lg:w-64 p-4 lg:p-6 flex flex-col justify-between bg-[var(--bg-secondary)] shadow-lg">
+            <div>
+                <div class="flex items-center gap-3 mb-10">
+                    <span class="text-3xl">🎵</span>
+                    <h1 class="text-2xl font-bold text-[var(--text-primary)] hidden lg:block">Metronome</h1>
+                </div>
+                <ul class="space-y-3">
+                    <li><a href="#" class="nav-link flex items-center gap-4 p-3 rounded-lg transition-colors duration-200 active" data-view="dashboard"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="hidden lg:inline">Dashboard</span></a></li>
+                    <li><a href="#" class="nav-link flex items-center gap-4 p-3 rounded-lg transition-colors duration-200" data-view="calendar"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span class="hidden lg:inline">Calendario</span></a></li>
+                    <li><a href="#" class="nav-link flex items-center gap-4 p-3 rounded-lg transition-colors duration-200" data-view="progress"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span class="hidden lg:inline">Progreso</span></a></li>
+                    <li><a href="#" class="nav-link flex items-center gap-4 p-3 rounded-lg transition-colors duration-200" data-view="plan"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="hidden lg:inline">Plan de Estudio</span></a></li>
+                    <li><a href="#" class="nav-link flex items-center gap-4 p-3 rounded-lg transition-colors duration-200" data-view="settings"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span class="hidden lg:inline">Ajustes</span></a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                 <button id="theme-toggle" class="w-full nav-link flex items-center gap-4 p-3 rounded-lg transition-colors duration-200">
+                    <svg id="theme-icon-sun" class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                     <svg id="theme-icon-moon" class="sidebar-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <span class="hidden lg:inline">Cambiar Tema</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 lg:p-10 overflow-y-auto">
+            <!-- Dashboard View -->
+            <div id="dashboard" class="view space-y-8">
+                <header>
+                    <h2 class="text-3xl font-bold text-[var(--text-primary)]">Dashboard</h2>
+                    <p class="text-[var(--text-secondary)]">Bienvenido de nuevo. ¡Es hora de hacer música!</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div id="today-practice-card" class="md:col-span-1 p-6 rounded-2xl bg-[var(--bg-secondary)] shadow-md flex flex-col justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-[var(--accent-secondary)]">PRÁCTICA DE HOY</p>
+                            <h3 id="today-category" class="text-2xl font-bold mt-1">Cargando...</h3>
+                            <p id="today-focus" class="text-[var(--text-secondary)] mt-1">Cargando...</p>
+                        </div>
+                        <button id="start-practice-btn" class="mt-6 w-full md:w-auto bg-[var(--accent-primary)] text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity">Iniciar Sesión de Práctica</button>
+                    </div>
+                    <div id="goals-card" class="md:col-span-1 p-6 rounded-2xl bg-[var(--bg-secondary)] shadow-md">
+                        <h3 class="text-xl font-bold mb-4">Metas de Práctica</h3>
+                        <!-- Daily Goal -->
+                        <div class="mb-4">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="text-sm font-medium">Meta Diaria</span>
+                                <span id="daily-goal-progress-text" class="text-sm text-[var(--text-secondary)]">0 / 30 min</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2.5"><div id="daily-goal-progress-bar" class="bg-[var(--accent-primary)] h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                        </div>
+                        <!-- Weekly Goal -->
+                        <div>
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="text-sm font-medium">Meta Semanal</span>
+                                <span id="weekly-goal-progress-text" class="text-sm text-[var(--text-secondary)]">0 / 180 min</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2.5"><div id="weekly-goal-progress-bar" class="bg-[var(--accent-secondary)] h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                        </div>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-[var(--bg-secondary)] shadow-md flex flex-col items-center justify-center text-center">
+                        <p class="text-sm font-medium text-[var(--accent-secondary)]">RACHA ACTUAL</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-5xl">🔥</span>
+                            <span id="streak-days" class="text-5xl font-bold">0</span>
+                        </div>
+                        <p class="text-[var(--text-secondary)]">días seguidos</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Actividad Semanal (en minutos)</h3>
+                     <p class="text-sm text-[var(--text-secondary)] mb-4">Esta gráfica muestra los minutos que has practicado cada día durante la semana actual. Te ayuda a visualizar tu consistencia y a identificar los días de mayor y menor actividad.</p>
+                    <div class="p-6 bg-[var(--bg-secondary)] rounded-2xl shadow-md">
+                        <div class="chart-container h-64 md:h-80">
+                            <canvas id="weekly-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendar" class="view hidden space-y-6">
+                 <header>
+                    <h2 class="text-3xl font-bold text-[var(--text-primary)]">Calendario</h2>
+                    <p class="text-[var(--text-secondary)]">Visualiza tu dedicación. Los días con práctica están resaltados. Haz clic en un día para ver los detalles.</p>
+                </header>
+                <div class="p-6 bg-[var(--bg-secondary)] rounded-2xl shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <button id="prev-month-btn" class="p-2 rounded-full hover:bg-white/10">&lt;</button>
+                        <h3 id="month-year-header" class="text-xl font-bold"></h3>
+                        <button id="next-month-btn" class="p-2 rounded-full hover:bg-white/10">&gt;</button>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center"></div>
+                </div>
+            </div>
+
+            <!-- Progress View -->
+            <div id="progress" class="view hidden space-y-8">
+                 <header>
+                    <h2 class="text-3xl font-bold text-[var(--text-primary)]">Progreso</h2>
+                    <p class="text-[var(--text-secondary)]">Analiza tus hábitos de estudio con estas visualizaciones detalladas.</p>
+                </header>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h3 class="text-xl font-bold">Distribución de Práctica</h3>
+                        <p class="text-sm text-[var(--text-secondary)]">Este gráfico de dona ilustra cómo distribuyes tu tiempo entre las diferentes categorías musicales. Úsalo para asegurar un estudio balanceado.</p>
+                        <div class="p-6 bg-[var(--bg-secondary)] rounded-2xl shadow-md">
+                           <div class="chart-container h-80">
+                                <canvas id="progress-donut-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="space-y-4">
+                        <h3 class="text-xl font-bold">Resumen de Actividad</h3>
+                         <p class="text-sm text-[var(--text-secondary)]">Aquí se muestran las métricas clave de tu recorrido musical. ¡Observa cómo crecen esos números!</p>
+                        <div class="p-6 bg-[var(--bg-secondary)] rounded-2xl shadow-md grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <p class="text-sm text-[var(--accent-secondary)]">TIEMPO TOTAL</p>
+                                <p id="stats-total-time" class="text-3xl font-bold mt-1">0h 0m</p>
+                            </div>
+                             <div>
+                                <p class="text-sm text-[var(--accent-secondary)]">SESIONES</p>
+                                <p id="stats-total-sessions" class="text-3xl font-bold mt-1">0</p>
+                            </div>
+                             <div>
+                                <p class="text-sm text-[var(--accent-secondary)]">MEJOR RACHA</p>
+                                <p id="stats-best-streak" class="text-3xl font-bold mt-1">0 días</p>
+                            </div>
+                             <div>
+                                <p class="text-sm text-[var(--accent-secondary)]">PROMEDIO DIARIO</p>
+                                <p id="stats-avg-time" class="text-3xl font-bold mt-1">0m</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session History -->
+                <div class="mt-8">
+                    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                        <h3 class="text-xl font-bold">Historial de Sesiones</h3>
+                        <div class="flex gap-2">
+                            <button id="import-csv-btn" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-lg text-sm hover:opacity-90 transition-opacity">Importar CSV</button>
+                            <input type="file" id="import-csv-input" class="hidden" accept=".csv">
+                            <button id="export-csv-btn" class="bg-[var(--accent-secondary)] text-white font-bold py-2 px-4 rounded-lg text-sm hover:opacity-90 transition-opacity">Exportar a CSV</button>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-[var(--bg-secondary)] rounded-2xl shadow-md">
+                        <div id="session-history-list" class="space-y-4 max-h-[40vh] overflow-y-auto pr-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan View -->
+            <div id="plan" class="view hidden space-y-6">
+                <header>
+                    <h2 class="text-3xl font-bold text-[var(--text-primary)]">Plan de Estudio</h2>
+                    <p class="text-[var(--text-secondary)]">Explora el plan de estudio completo basado en tu documento. Usa este desglose para entender el enfoque de cada fase y semana.</p>
+                </header>
+                <div id="study-plan-container" class="space-y-4"></div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings" class="view hidden space-y-6">
+                <header>
+                    <h2 class="text-3xl font-bold text-[var(--text-primary)]">Ajustes</h2>
+                    <p class="text-[var(--text-secondary)]">Personaliza tus metas de práctica.</p>
+                </header>
+                <div class="p-6 bg-[var(--bg-secondary)] rounded-2xl shadow-md max-w-md">
+                    <form id="settings-form" class="space-y-6">
+                        <div>
+                            <label for="daily-goal-input" class="block text-sm font-medium text-[var(--text-secondary)]">Meta Diaria (minutos)</label>
+                            <input type="number" id="daily-goal-input" min="0" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]">
+                        </div>
+                        <div>
+                            <label for="weekly-goal-input" class="block text-sm font-medium text-[var(--text-secondary)]">Meta Semanal (minutos)</label>
+                            <input type="number" id="weekly-goal-input" min="0" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]">
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-[var(--accent-primary)] text-white font-bold py-2 px-5 rounded-lg hover:opacity-90">Guardar Ajustes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Practice Modal -->
+    <div id="practice-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-[var(--bg-secondary)] rounded-2xl p-8 w-full max-w-md shadow-2xl space-y-6">
+            <h2 class="text-2xl font-bold text-center">Sesión de Práctica</h2>
+            <div class="text-center">
+                <div id="timer" class="text-6xl font-bold tabular-nums">00:00:00</div>
+                <p id="timer-category" class="text-[var(--text-secondary)] mt-1"></p>
+            </div>
+
+            <!-- Metronome Section -->
+            <div id="metronome-section" class="pt-4 border-t border-white/10 space-y-4">
+                <div class="flex justify-center items-center h-12">
+                    <div id="metronome-indicator" class="w-8 h-8 rounded-full bg-[var(--accent-secondary)] transition-transform duration-100"></div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <label for="metronome-bpm" class="text-sm text-[var(--text-secondary)]">BPM:</label>
+                    <input type="range" id="metronome-bpm" min="40" max="220" value="120" class="flex-grow">
+                    <span id="metronome-bpm-display" class="font-bold tabular-nums w-12 text-center">120</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="metronome-sound-toggle" class="text-sm text-[var(--text-secondary)]">Sonido de clic:</label>
+                    <input type="checkbox" id="metronome-sound-toggle" class="h-5 w-5 rounded border-gray-300 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]">
+                </div>
+                <button id="metronome-toggle-btn" class="w-full bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:opacity-90">Iniciar Metrónomo</button>
+            </div>
+
+            <div class="flex gap-4">
+                <button id="finish-practice-btn" class="w-full bg-[var(--accent-primary)] text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity">Finalizar y Registrar</button>
+                <button id="cancel-practice-btn" class="w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Log Modal -->
+    <div id="log-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-[var(--bg-secondary)] rounded-2xl p-8 w-full max-w-md shadow-2xl space-y-4">
+             <h2 class="text-2xl font-bold text-center">¡Gran Sesión!</h2>
+             <p class="text-center text-[var(--text-secondary)]">Confirma los detalles de tu práctica.</p>
+             <form id="log-form" class="space-y-4">
+                <div>
+                    <label for="log-category" class="block text-sm font-medium text-[var(--text-secondary)]">Categoría</label>
+                    <select id="log-category" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]">
+                    </select>
+                </div>
+                 <div>
+                    <label for="log-focus" class="block text-sm font-medium text-[var(--text-secondary)]">Foco de la práctica</label>
+                    <input type="text" id="log-focus" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" placeholder="Ej: Escalas mayores, Acordes de jazz...">
+                </div>
+                 <div>
+                    <label for="log-duration" class="block text-sm font-medium text-[var(--text-secondary)]">Duración (minutos)</label>
+                    <input type="number" id="log-duration" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]">
+                </div>
+                <div>
+                    <label for="log-notes" class="block text-sm font-medium text-[var(--text-secondary)]">Notas</label>
+                    <textarea id="log-notes" rows="3" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" placeholder="¿Algo que destacar? ¿Dificultades?"></textarea>
+                </div>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" id="cancel-log-btn" class="bg-gray-500 text-white font-bold py-2 px-5 rounded-lg hover:opacity-90">Cancelar</button>
+                    <button type="submit" class="bg-[var(--accent-primary)] text-white font-bold py-2 px-5 rounded-lg hover:opacity-90">Guardar Práctica</button>
+                </div>
+             </form>
+        </div>
+    </div>
+
+    <!-- Edit Log Modal -->
+    <div id="edit-log-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-[var(--bg-secondary)] rounded-2xl p-8 w-full max-w-md shadow-2xl space-y-4">
+             <h2 class="text-2xl font-bold text-center">Editar Sesión</h2>
+             <p class="text-center text-[var(--text-secondary)]">Modifica los detalles de tu práctica.</p>
+             <form id="edit-log-form" class="space-y-4">
+                <input type="hidden" id="edit-log-index">
+                <div>
+                    <label for="edit-log-date" class="block text-sm font-medium text-[var(--text-secondary)]">Fecha</label>
+                    <input type="date" id="edit-log-date" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]">
+                </div>
+                <div>
+                    <label for="edit-log-category" class="block text-sm font-medium text-[var(--text-secondary)]">Categoría</label>
+                    <select id="edit-log-category" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]">
+                    </select>
+                </div>
+                 <div>
+                    <label for="edit-log-focus" class="block text-sm font-medium text-[var(--text-secondary)]">Foco de la práctica</label>
+                    <input type="text" id="edit-log-focus" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" placeholder="Ej: Escalas mayores, Acordes de jazz...">
+                </div>
+                 <div>
+                    <label for="edit-log-duration" class="block text-sm font-medium text-[var(--text-secondary)]">Duración (minutos)</label>
+                    <input type="number" id="edit-log-duration" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]">
+                </div>
+                <div>
+                    <label for="edit-log-notes" class="block text-sm font-medium text-[var(--text-secondary)]">Notas</label>
+                    <textarea id="edit-log-notes" rows="3" class="mt-1 block w-full bg-[#333] border-gray-600 rounded-md shadow-sm p-3 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" placeholder="¿Algo que destacar? ¿Dificultades?"></textarea>
+                </div>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" id="cancel-edit-log-btn" class="bg-gray-500 text-white font-bold py-2 px-5 rounded-lg hover:opacity-90">Cancelar</button>
+                    <button type="submit" class="bg-[var(--accent-primary)] text-white font-bold py-2 px-5 rounded-lg hover:opacity-90">Guardar Cambios</button>
+                </div>
+             </form>
+        </div>
+    </div>
+
+
+    <script type="module" src="/js/app.js"></script>
+</body>
+</html>
