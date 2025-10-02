@@ -19,7 +19,7 @@ Una aplicación web moderna para practicar música con metrónomo integrado, seg
 
 ## 🚀 Demo en Vivo
 
-[Ver Demo](https://tu-usuario.github.io/acordiario) *(Próximamente)*
+[Ver Demo](https://gurugrafico.github.io/acordiario) *(Disponible en GitHub Pages)*
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -61,7 +61,7 @@ acordiario/
 
 1. **Clona el repositorio**:
    ```bash
-   git clone https://github.com/tu-usuario/acordiario.git
+   git clone https://github.com/gurugrafico/acordiario.git
    cd acordiario
    ```
 
@@ -141,7 +141,7 @@ acordiario/
 
 ## 🐛 Reportar Bugs
 
-Si encuentras algún error, por favor [abre un issue](https://github.com/tu-usuario/acordiario/issues) con:
+Si encuentras algún error, por favor [abre un issue](https://github.com/gurugrafico/acordiario/issues) con:
 - Descripción del problema
 - Pasos para reproducirlo
 - Navegador y versión
@@ -153,9 +153,9 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ## 👨‍💻 Autor
 
-**Tu Nombre**
-- GitHub: [@tu-usuario](https://github.com/tu-usuario)
-- Email: tu-email@ejemplo.com
+**Andrés Quiñones**
+- GitHub: [@gurugrafico](https://github.com/gurugrafico)
+- Email: xndres18@gmail.com
 
 ## 🙏 Agradecimientos
 
