@@ -26,13 +26,13 @@ jobs:
 
       - name: Build CSS
         run: npm run build
-      - name: Debug: list repository files
+      - name: "Debug: list repository files"
         run: |
           echo "Repository root files:";
           ls -la
           echo "\nSize summary:";
           du -sh . || true
-      - name: Debug: show dist contents
+      - name: "Debug: show dist contents"
         run: |
           echo "dist listing:";
           ls -la dist || true
