@@ -9,7 +9,7 @@ const output = './dist/styles.css';
 (async () => {
   try {
     const css = fs.readFileSync(input, 'utf8');
-  const result = await postcss([tailwindcss('./tailwind.config.cjs'), autoprefixer]).process(css, { from: input });
+  const result = await postcss([tailwindcss({ config: './tailwind.config.cjs' }), autoprefixer]).process(css, { from: input });
     fs.mkdirSync('./dist', { recursive: true });
     fs.writeFileSync(output, result.css);
     console.log('CSS built to', output);
