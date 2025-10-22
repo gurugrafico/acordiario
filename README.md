@@ -1,4 +1,4 @@
-# 🎵 Acordiario - Metrónomo Musical Inteligente
+# 🎵 Acordiario - Aplicación web para práctica musical
 
 Una aplicación web moderna para practicar música con metrónomo integrado, seguimiento de progreso y plan de estudio personalizable.
 
