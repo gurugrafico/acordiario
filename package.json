@@ -1,7 +1,7 @@
 {
   "name": "acordiario",
   "version": "1.0.0",
-  "description": "Metrónomo Musical - Acordiario",
+  "description": "Acordiario - Metrónomo Musical Inteligente",
   "type": "module",
   "scripts": {
     "start": "node server.js 62146",

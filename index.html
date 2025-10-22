@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metronome App - Tu Progreso Musical</title>
+    <title>Acordiario - Tu Progreso Musical</title>
     <!-- Chosen Palette: Dark Mode Professional (Blue & Gold) -->
     <!-- Application Structure Plan: Se ha diseñado una Single-Page Application (SPA) con una estructura centrada en un Dashboard. La navegación lateral permite cambiar entre vistas (Dashboard, Calendario, Progreso, Plan de Estudio) sin recargar la página, manteniendo al usuario en un flujo constante. Esta estructura se eligió porque presenta la información más relevante (la práctica del día y la racha) de forma inmediata, motivando la acción. Las demás secciones ofrecen vistas más profundas de los datos históricos y futuros, permitiendo al usuario explorar su progreso y planificar a su conveniencia. El flujo principal es simple: ver la tarea, iniciar el cronómetro, registrar la sesión y ver la actualización instantánea de los datos, lo que crea un ciclo de retroalimentación positivo. -->
     <!-- Visualization & Content Choices: Se han utilizado los siguientes métodos de visualización para transformar los datos del informe (el plan de estudio) y los datos generados por el usuario (los registros de práctica) en información útil: [Tarjeta "Práctica de Hoy" (HTML/Tailwind) -> Goal: Informar -> Justification: Proporciona la tarea más inmediata y accionable], [Gráficas de Barras y Donas (Chart.js) -> Goal: Comparar y Organizar -> Justification: Permiten visualizar la distribución del tiempo y el progreso semanal/mensual de forma clara y estandarizada], [Calendario Interactivo (HTML Grid + JS) -> Goal: Mostrar Cambio/Consistencia -> Justification: Ofrece una poderosa representación visual de la constancia del usuario, reforzando el hábito], [Acordeón de Plan de Estudio (HTML/Tailwind + JS) -> Goal: Organizar -> Justification: Condensa la gran cantidad de información del PDF en una jerarquía navegable y fácil de consumir, evitando la sobrecarga de información]. -->
@@ -56,7 +56,7 @@
             <div>
                 <div class="flex items-center gap-3 mb-10">
                     <span class="text-3xl">🎵</span>
-                    <h1 class="text-2xl font-bold text-[var(--text-primary)] hidden lg:block">Metronome</h1>
+                    <h1 class="text-2xl font-bold text-[var(--text-primary)] hidden lg:block">Acordiario</h1>
                 </div>
                 <ul class="space-y-3">
                     <li><a href="#" class="nav-link flex items-center gap-4 p-3 rounded-lg transition-colors duration-200 active" data-view="dashboard"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="hidden lg:inline">Dashboard</span></a></li>
