@@ -1,0 +1,21 @@
+{
+  "name": "acordiario",
+  "version": "1.0.0",
+  "description": "Metrónomo Musical - Acordiario",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js 62146",
+    "check": "node --check js/app.js js/audioManager.js js/dataManager.js js/effects.js js/metronome.js js/timerManager.js js/uiManager.js",
+    "build:css": "node ./scripts/build-css.js",
+    "build": "npm run build:css"
+  },
+  "author": "Andrés Quiñones",
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.15",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "puppeteer": "^24.26.0",
+    "tailwindcss": "^4.1.15"
+  }
+}
