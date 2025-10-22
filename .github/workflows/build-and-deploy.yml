@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -54,6 +54,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -x
           echo "Publishing site/ to gh-pages branch"
           cd site
           git init
@@ -62,5 +63,12 @@ jobs:
           git add -A
           git commit -m "Deploy site: ${GITHUB_SHA}" || true
           git branch -M gh-pages
+          # show git status and remotes for debugging
+          git status --porcelain || true
+          git remote -v || true
+          # add remote with token
           git remote add origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          echo "About to push to origin gh-pages (this will be visible in logs)"
           git push --force origin gh-pages
+          echo "Push exit code: $?"
+          set +x
