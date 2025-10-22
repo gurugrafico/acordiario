@@ -8,13 +8,12 @@
     <!-- Application Structure Plan: Se ha diseñado una Single-Page Application (SPA) con una estructura centrada en un Dashboard. La navegación lateral permite cambiar entre vistas (Dashboard, Calendario, Progreso, Plan de Estudio) sin recargar la página, manteniendo al usuario en un flujo constante. Esta estructura se eligió porque presenta la información más relevante (la práctica del día y la racha) de forma inmediata, motivando la acción. Las demás secciones ofrecen vistas más profundas de los datos históricos y futuros, permitiendo al usuario explorar su progreso y planificar a su conveniencia. El flujo principal es simple: ver la tarea, iniciar el cronómetro, registrar la sesión y ver la actualización instantánea de los datos, lo que crea un ciclo de retroalimentación positivo. -->
     <!-- Visualization & Content Choices: Se han utilizado los siguientes métodos de visualización para transformar los datos del informe (el plan de estudio) y los datos generados por el usuario (los registros de práctica) en información útil: [Tarjeta "Práctica de Hoy" (HTML/Tailwind) -> Goal: Informar -> Justification: Proporciona la tarea más inmediata y accionable], [Gráficas de Barras y Donas (Chart.js) -> Goal: Comparar y Organizar -> Justification: Permiten visualizar la distribución del tiempo y el progreso semanal/mensual de forma clara y estandarizada], [Calendario Interactivo (HTML Grid + JS) -> Goal: Mostrar Cambio/Consistencia -> Justification: Ofrece una poderosa representación visual de la constancia del usuario, reforzando el hábito], [Acordeón de Plan de Estudio (HTML/Tailwind + JS) -> Goal: Organizar -> Justification: Condensa la gran cantidad de información del PDF en una jerarquía navegable y fácil de consumir, evitando la sobrecarga de información]. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="dist/styles.css">
-    <link rel="icon" href="favicon.png" type="image/png">
     <style>
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -341,6 +340,6 @@
     </div>
 
 
-    <script type="module" src="js/app.js"></script>
+    <script type="module" src="/js/app.js"></script>
 </body>
 </html>
