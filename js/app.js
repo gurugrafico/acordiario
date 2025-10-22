@@ -1,10 +1,10 @@
 // js/app.js
-import { dataManager } from '/js/dataManager.js';
-import { uiManager } from '/js/uiManager.js';
-import { timerManager } from '/js/timerManager.js';
-import { triggerConfetti } from '/js/effects.js';
-import { audioManager } from '/js/audioManager.js';
-import { metronomeManager } from '/js/metronome.js';
+import { dataManager } from './dataManager.js';
+import { uiManager } from './uiManager.js';
+import { timerManager } from './timerManager.js';
+import { triggerConfetti } from './effects.js';
+import { audioManager } from './audioManager.js';
+import { metronomeManager } from './metronome.js';
 
 /**
  * Connects all modules and handles user input.

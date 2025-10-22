@@ -1,5 +1,5 @@
 // js/uiManager.js
-import { dataManager } from '/js/dataManager.js';
+import { dataManager } from './dataManager.js';
 
 /**
  * Manages all DOM elements and rendering logic.
