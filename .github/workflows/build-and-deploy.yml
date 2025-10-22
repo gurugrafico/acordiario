@@ -38,13 +38,25 @@ jobs:
           ls -la dist || true
           echo "\nHead of dist/styles.css:";
           head -n 40 dist/styles.css || true
+      - name: Assemble site directory
+        run: |
+          rm -rf site || true
+          mkdir -p site
+          echo "Copying index.html and assets to site/"
+          cp -v index.html site/ || true
+          cp -rv js site/ || true
+          cp -rv audio site/ || true
+          cp -rv dist site/ || true
+          cp -v favicon.ico site/ || true
+          cp -v favicon.png site/ || true
+          echo "Site dir size:"; du -sh site || true
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v3
 
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./
+          path: ./site
 
   deploy:
     needs: build
